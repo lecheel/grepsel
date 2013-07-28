@@ -8,7 +8,7 @@ grepsel can use original vgrep script for vim, emacs, fte ...
 
 grepsel support two output store in ~/legrep also the vgrep ~/fte.grp for recall
 
-##How to Use:
+###How to Use:###
  usage: grepsel [--help] [-cc] [-mk] [-py] [-ja] [-v] [-w]
                 [PATTERN [PATTERN ...]]
                
