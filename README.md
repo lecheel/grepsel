@@ -9,15 +9,16 @@ grepsel can use original vgrep script for vim, emacs, fte ...
 grepsel support two output store in ~/legrep also the vgrep ~/fte.grp for recall
 
 ##How to Use:
-usage: grepsel [--help] [-cc] [-mk] [-py] [-ja] [-v] [-w]
-               [PATTERN [PATTERN ...]]
+ usage: grepsel [--help] [-cc] [-mk] [-py] [-ja] [-v] [-w]
+                [PATTERN [PATTERN ...]]
                
-grepsel using GNU grep wrapper for file(s).
+ grepsel using GNU grep wrapper for file(s).
                
-positional arguments:
-PATTERN      the pattern to find
+ positional arguments:
+ PATTERN      the pattern to find
                  
-optional arguments:
+ optional arguments:
+
    --help       show this help message and exit
    -cc          search for all c and cpp [default]
    -mk          search for android mk and Makefile
