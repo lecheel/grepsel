@@ -126,11 +126,21 @@ def parse_line(spat,sline,idx):
         print "[\033[1;35m%3s\033[0m] \033[92m%s\033[0m +\033[1;33m%s\033[0m %s" % (idx+1, sline.split(":")[0],sline.split(":")[1],str)
 
 
+def checkDotName(fname):
+    if fname[0]==".":
+        legreprc="%s/legreprc" % os.getenv("HOME")
+        fp = open(legreprc)
+        lines = fp.readlines()
+        fname="%s%s" %(lines[0],fname)
+        fp.close()
+    return fname
+
 def parse_fnameline(sline,idx):
     lastpos=len(sline.split(":")[0])+len(sline.split(":")[1])+2
     content=sline[lastpos:]
     write_fnameline(sline.split(":")[0],sline.split(":")[1])
     fname = sline.split(":")[0]
+    fname=checkDotName(fname)
     fline = "+%s" % sline.split(":")[1]
     EDITOR = os.environ.get('EDITOR','vim') #that easy!
     call([EDITOR, fname, fline])
@@ -287,6 +297,13 @@ def gnu_grep(spat,use_cc,use_mk,use_py,use_java,wideview):
     os.system(cmd)
     color_print(spat,wideview)
 
+def write_prefix():
+    home = os.path.expanduser("~")
+    legreprc = home+"/legreprc"
+    curdir="%s/" % os.getcwd()
+    rc=open(legreprc,"w")
+    rc.write(curdir)
+    rc.close()
 
 def setup_parser():
     parser = ArgumentParser(description='grepsel using GNU grep wrapper for file(s).', add_help=False)
@@ -324,7 +341,20 @@ def main():
         return
 
     if args.pattern:
-        gnu_grep(pattern[0],use_cc,args.mk,args.py,args.java,wideview)
+        if pattern[0].isdigit():
+            ln=int(pattern[0])
+            home = os.path.expanduser("~")
+            legrep = home+"/legrep"
+            fp=open(legrep)
+            lines = fp.readlines()
+            if ln <= len(lines):
+                parse_fnameline(lines[ln-1],ln-1)
+            else:
+                print "Out of Range!!!"
+            fp.close()
+        else:
+            write_prefix()
+            gnu_grep(pattern[0],use_cc,args.mk,args.py,args.java,wideview)
     else:
         try:
             spat = os.environ["spat"]

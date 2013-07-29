@@ -46,4 +46,8 @@ grepsel support two output store in ~/legrep also the vgrep ~/fte.grp for recall
         $ grepsel 
         recall the last grep result prompt again
 
-        $ 
+        $ grepsel 5
+        launch vim for select line which cross the section
+
+###Problem
+        now grepsel [num] as quick launch how to grep real number [TODO]
