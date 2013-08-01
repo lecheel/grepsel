@@ -9,7 +9,8 @@ some output style I'm prefer and cross the different text editor and section
 grepsel act as wrapper for grep provide programmer searching for different source code via the command line
 grepsel can use original vgrep script for vim, emacs, fte ...
 
-grepsel support two output store in ~/legrep also the vgrep ~/fte.grp for recall
+grepsel support two output store in ~/legrep.grp for recall
+grepsel.vim grepsel in vim script
 
 ###How to Use:###
 	usage: grepsel [--help] [-cc] [-mk] [-py] [-ja] [-v] [-w]
