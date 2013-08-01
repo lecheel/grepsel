@@ -191,7 +191,7 @@ def color_print(spat,wideview,no_prompt):
       fp=open(legrep)
       lines = fp.readlines()
     except IOError:
-      print "~legrep.grp not Founded!!!"
+      print "~/legrep.grp not Founded!!!"
       return
     else:
       fp.close()
@@ -291,7 +291,7 @@ def gnu_grep(spat,use_cc,use_mk,use_py,use_java,wideview,no_prompt):
     if use_java==True:
        gfiles="-name '*.java'"
 
-    cmd= "find . -name .repo -prune -o -name .git -prune -o -type f \( %s \) -print0 | xargs -0 grep --color -n '%s' > ~/legrep" %(gfiles,spat)
+    cmd= "find . -name .repo -prune -o -name .git -prune -o -type f \( %s \) -print0 | xargs -0 grep --color -n '%s' > ~/legrep.grp" %(gfiles,spat)
 #    print cmd
     print "grepsel in progress....via \033[1;91mGNU\033[0m grep !!"
     print "  find . %s" % gfiles
@@ -349,7 +349,7 @@ def main():
         if pattern[0].isdigit():
             ln=int(pattern[0])
             home = os.path.expanduser("~")
-            legrep = home+"/legrep"
+            legrep = home+"/legrep.grp"
             fp=open(legrep)
             lines = fp.readlines()
             if ln <= len(lines):
