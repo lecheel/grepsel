@@ -183,15 +183,15 @@ def prompt_choice(Max_choice,typ):
     else:
        print "Oops...!"
 
-def color_print(spat,wideview):
+def color_print(spat,wideview,no_prompt):
     global lines
     home = os.path.expanduser("~")
-    legrep = home+"/legrep"
+    legrep = home+"/legrep.grp"
     try:
       fp=open(legrep)
       lines = fp.readlines()
     except IOError:
-      print "~legrep not Founded!!!"
+      print "~legrep.grp not Founded!!!"
       return
     else:
       fp.close()
@@ -213,10 +213,11 @@ def color_print(spat,wideview):
         else:
             parse_line(spat,line[:-1],i-1)
         i=i+1
-    if i>1:
-        prompt_choice(len(lines),1)
-    else:
-        print "No Founed !!!!"
+    if not no_prompt:
+        if i>1:
+            prompt_choice(len(lines),1)
+        else:
+            print "No Founed !!!!"
     return
 
 """
@@ -280,7 +281,7 @@ def color_vprint(spat,wideview):
         print "No Founded !!!!"
     return
 
-def gnu_grep(spat,use_cc,use_mk,use_py,use_java,wideview):
+def gnu_grep(spat,use_cc,use_mk,use_py,use_java,wideview,no_prompt):
     if use_cc==True:
        gfiles="-name '*.mk' -o -name '*.c' -o -name '*.cc' -o -name '*.cpp' -o -name '*.h'"
     if use_mk==True:
@@ -295,7 +296,7 @@ def gnu_grep(spat,use_cc,use_mk,use_py,use_java,wideview):
     print "grepsel in progress....via \033[1;91mGNU\033[0m grep !!"
     print "  find . %s" % gfiles
     os.system(cmd)
-    color_print(spat,wideview)
+    color_print(spat,wideview,no_prompt)
 
 def write_prefix():
     home = os.path.expanduser("~")
@@ -312,6 +313,7 @@ def setup_parser():
     parser.add_argument('-cc', action='store_true', help='search for all c and cpp [\033[92mdefault\033[0m]')
     parser.add_argument('-mk', action='store_true', help='search for android mk and Makefile')
     parser.add_argument('-py', action='store_true', help='search for py')
+    parser.add_argument('-n','--noprompt', action='store_true', help='no prompt')
     parser.add_argument('-ja','--java', action='store_true', help='search for java')
     parser.add_argument('-v','--vgrep',  action='store_true', help='grepsel gnu view and select for vim')
     parser.add_argument('-w','--wide',  action='store_true', help='grepsel wide view and select for vim')
@@ -326,11 +328,14 @@ def main():
     pattern = args.pattern
 
     use_cc, use_mk, use_py, use_java, gview = DEFAULT_PRINT_OPTIONS
+    no_prompt = False
 
     grepview = False
     # default wideview or GNU view
     wideview = False
 
+    if args.noprompt:
+       no_prompt = True
     if args.cc:
        use_cc = args.cc
     if args.wide:
@@ -354,14 +359,14 @@ def main():
             fp.close()
         else:
             write_prefix()
-            gnu_grep(pattern[0],use_cc,args.mk,args.py,args.java,wideview)
+            gnu_grep(pattern[0],use_cc,args.mk,args.py,args.java,wideview,no_prompt)
     else:
         try:
             spat = os.environ["spat"]
             print "Search Pattern: \033[31m%s\033[0m" %spat
         except KeyError:
             spat = ""
-        color_print(spat,wideview)
+        color_print(spat,wideview,no_prompt)
 
 if __name__ == '__main__':
     main()
