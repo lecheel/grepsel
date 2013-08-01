@@ -10,12 +10,24 @@ let loaded_grepsel = 1
 let GNUgrep = 1
 let Grepsel_Output = '~/legrep.grp'
 
+let g:GREPSEL_DIRS=getcwd()
+
 if !exists("Glist_Key")
     let Glist_Key = "<F12>"
 endif
 
-
-
+" DelGgrepselClrDat()
+"
+function! s:RunGrepselClrDat()
+    let tmpfile = g:Grepsel_Output
+    if filereadable(tmpfile)
+	let del_str = 'del ' . tmpfile
+	if (g:GNUgrep == 1)
+	    let del_str = 'rm -f ' . tmpfile 
+	endif  
+	call delete(tmpfile)
+    endif
+endfunction
 
 " RunGrepselCmd()
 " Run the specified grep command using the supplied pattern
@@ -32,10 +44,7 @@ function! s:RunGrepselCmd(cmd, pattern)
     let old_verbose = &verbose
     set verbose&vim
 
-"    exe "redir! > " . tmpfile
     silent echon cmd_output
-"    redir END
-"    set nomodified
 
 endfunction
 
@@ -79,45 +88,35 @@ endfunction
 " RunGrepsel()
 " Run the specified grep command
 function! s:RunGrepsel(...)
-"    if a:0 == 0 || a:1 == ''
-    let grepsel_opt = g:Grepsel_Default_Options
-    let grepsel_path = g:Grepsel_Path
-    
+
     " No argument supplied. Get the identifier and file list from user
     let pattern = input("Grep for pattern: ", expand("<cword>"))
     if pattern == ""
 	echo "Cancelled."    
-        return
+	return
     endif
     let grepseldir = input("grepsel dir: ", g:GREPSEL_DIRS)
     if grepseldir == ""
-	    echo "Cancelled."    
-	    return
+	echo "Cancelled."    
+	return
     endif 
-	let g:GREPSEL_DIRS = grepseldir
-
-  if g:GNUgrep == 1 
-"    	call s:RunGrepselClrDat()
-        echo cmd
-    	call s:RunGrepselCmd(cmd, pattern)
-	    call s:RunGrepselWidePatch()
-    else 
-    	let last_cd = getcwd()
-    	exe 'cd ' . grepseldir
-    	call s:RunGrepselCmd(cmd, pattern)
-    	exe 'cd ' . last_cd
-    endif
+    let g:GREPSEL_DIRS = grepseldir
+    let cmd = "grepsel " .pattern 
+    let last_cd = getcwd()
+    exe 'cd ' . grepseldir
+    call s:RunGrepselCmd(cmd, pattern)
+    exe 'cd ' . last_cd
 
     if filereadable(g:Grepsel_Output)
-      setlocal modifiable 
-       exe 'edit ' . g:Grepsel_Output
-       setlocal nomodifiable
+	setlocal modifiable 
+	exe 'edit ' . g:Grepsel_Output
+	setlocal nomodifiable
     endif       
 
     nnoremap <buffer> <silent> <CR> :call <SID>EditFile()<CR>
     nmap <buffer> <silent> <2-LeftMouse> :call <SID>EditFile()<CR>
     nmap <buffer> <silent> o :call <SID>EditFile()<CR>
-	nmap <buffer> <silent> <ESC> :bdelete<CR>
+    nmap <buffer> <silent> <ESC> :bdelete<CR>
 endfunction
 
 function! s:RunGlist()
@@ -135,6 +134,7 @@ exe "nnoremap <unique> <silent> " . Glist_Key . " :call <SID>RunGlist()<CR>"
 exe "inoremap <unique> <silent> " . Glist_Key . " <C-O>:call <SID>RunGlist()<CR>"
 
 " Define the set of grep commands
+command! -nargs=* Gs call s:RunGrepsel(<q-args>)
 command! -nargs=* Grepsel call s:RunGrepsel(<q-args>)
 command! Glist call s:RunGlist()
 
