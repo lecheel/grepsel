@@ -31,6 +31,39 @@ grepsel.vim grepsel in vim script
 	-v, --vgrep  grepsel gnu view and select for vim
 	-w, --wide   grepsel wide view and select for vim
 
+###Add to .bashrc###
+function vg()
+{
+    if [[ $1 == "?" || $1 == "--help" ]]; then
+      echo "vg         ag viewer " 
+      echo "   [regex] search for pattern via ag"
+      echo "   [0..9]  for vim"
+
+      return
+    fi
+
+    if [[ $1 == "" ]]; then
+        grepsel -vv 0
+        return
+    fi
+
+    re='^[0-9]+$'
+    if [[ $1 =~ $re ]] ; then
+           echo "Number !!!!"
+           grepsel -vv $1
+           return
+    fi
+
+    if [[ $1 == "-s" ]]; then
+      grepsel -v
+      return
+    fi
+
+
+    ag --fte $@ > ~/fte.grp
+    grepsel -vv $@
+}
+
 ###Sample
 	$ grepsel -py grepsel
 	grepsel in progress....via gnu grep !!
