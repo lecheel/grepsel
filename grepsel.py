@@ -59,16 +59,16 @@ def color_find(pattern, string, ignore_case):
 def parse_hfile(fname):
     ret = 0
     if fname[0] == ".":
-       idx=2
+        idx=2
     else:
-       idx=1
+        idx=1
     try:
-       h=fname.split(".")
-       if len(h) == 2:
-          if h[1] == "h":
-              ret = 1
+        h=fname.split(".")
+        if len(h) == 2:
+            if h[1] == "h":
+                ret = 1
     except ValueError,IndexError:
-       ret = 0
+        ret = 0
     return ret
 
 def parse_vline(spat,sline,idx,lastname):
@@ -135,6 +135,21 @@ def checkDotName(fname):
         fp.close()
     return fname
 
+def parse_vgrep(lines,idx):
+    gotLine=0
+    for i in range(idx,-1,-1):
+        if lines[i][:4] == "File":
+            fname0=lines[i].split(": ")[1]
+            if gotLine==0:
+                fline0=0
+            return fname0, fline0
+        else:
+            if gotLine == 0:
+                gotLine=1
+                fline0=lines[i].split(":")[0]
+
+
+
 def parse_fnameline(sline,idx):
     lastpos=len(sline.split(":")[0])+len(sline.split(":")[1])+2
     content=sline[lastpos:]
@@ -147,7 +162,7 @@ def parse_fnameline(sline,idx):
 
 
 def find_fname(idx):
-    for i in range(idx,0,-1):
+    for i in range(idx,-1,-1):
        if lines[i][:4] == "File":
            return i
 
@@ -159,7 +174,7 @@ def parse_vfnameline(sline,idx):
     else:
         fline = sline.split(":")[0]
         ii=find_fname(idx)
-        if ii>0:
+        if ii>=0:
            fname = lines[ii][6:][:-1]
            fline = "+%s" % fline.strip()
            call([EDITOR, fname, fline])
@@ -170,31 +185,31 @@ def prompt_choice(Max_choice,typ):
     myAns=raw_input("\033[32mPrompt \033[0m:")
     if myAns:
         try:
-           idx=string.atoi(myAns)-1
-           if idx < Max_choice-1:
-               if typ == 1:
-                  parse_fnameline(lines[idx],idx)
-               else:
-                  parse_vfnameline(lines[idx],idx)
-           else:
-               print "Out of range!"
+            idx=string.atoi(myAns)-1
+            if idx < Max_choice-1:
+                if typ == 1:
+                    parse_fnameline(lines[idx],idx)
+                else:
+                    parse_vfnameline(lines[idx],idx)
+            else:
+                print "Out of range!"
         except ValueError:
-           return
+            return
     else:
-       print "Oops...!"
+        print "Oops...!"
 
 def color_print(spat,wideview,no_prompt):
     global lines
     home = os.path.expanduser("~")
     legrep = home+"/legrep.grp"
     try:
-      fp=open(legrep)
-      lines = fp.readlines()
+        fp=open(legrep)
+        lines = fp.readlines()
     except IOError:
-      print "~legrep.grp not Founded!!!"
-      return
+        print "~/legrep.grp not Founded!!!"
+        return
     else:
-      fp.close()
+        fp.close()
     i=1;
     lastname="xxx"
     if len(lines)>100:
@@ -206,7 +221,7 @@ def color_print(spat,wideview,no_prompt):
             cmd = "less %s" % legrep
             os.system(cmd)
         return
-
+    
     for line in lines:
         if wideview:
             lastname=parse_vline(spat,line[:-1],i-1,lastname)
@@ -244,7 +259,7 @@ def color_v0print(spat,wideview):
         lastname=parse_v0line(spat,line[:-1],i-1,lastname)
         i=i+1
     if i>1:
-        prompt_choice(len(lines),0)
+        prompt_choice(len(lines)+1,0)
     else:
         print "No Founded !!!!"
     return
@@ -281,17 +296,29 @@ def color_vprint(spat,wideview):
         print "No Founded !!!!"
     return
 
+def color_h(fname):
+    global lines
+    fp=open(fname)
+    lines = fp.readlines()
+    fp.close()
+    for line in lines:
+        line = line[:-1]
+        xx = line.split(" ")
+        print "\033[92m%15s \033[93m%15s  \033[94m%s\033[0m" % (xx[0], xx[1], xx[2])
+    return
+
+
 def gnu_grep(spat,use_cc,use_mk,use_py,use_java,wideview,no_prompt):
     if use_cc==True:
-       gfiles="-name '*.mk' -o -name '*.c' -o -name '*.cc' -o -name '*.cpp' -o -name '*.h'"
+        gfiles="-name '*.mk' -o -name '*.c' -o -name '*.cc' -o -name '*.cpp' -o -name '*.h'"
     if use_mk==True:
-       gfiles="-name '*.mk' -o -name 'Makefile' "
+        gfiles="-name '*.mk' -o -name 'Makefile' "
     if use_py==True:
-       gfiles="-name '*.py'"
+        gfiles="-name '*.py'"
     if use_java==True:
-       gfiles="-name '*.java'"
+        gfiles="-name '*.java'"
 
-    cmd= "find . -name .repo -prune -o -name .git -prune -o -type f \( %s \) -print0 | xargs -0 grep --color -n '%s' > ~/legrep" %(gfiles,spat)
+    cmd= "find . -name .repo -prune -o -name .git -prune -o -type f \( %s \) -print0 | xargs -0 grep --color -n '%s' > ~/legrep.grp" %(gfiles,spat)
 #    print cmd
     print "grepsel in progress....via \033[1;91mGNU\033[0m grep !!"
     print "  find . %s" % gfiles
@@ -316,6 +343,8 @@ def setup_parser():
     parser.add_argument('-n','--noprompt', action='store_true', help='no prompt')
     parser.add_argument('-ja','--java', action='store_true', help='search for java')
     parser.add_argument('-v','--vgrep',  action='store_true', help='grepsel gnu view and select for vim')
+    parser.add_argument('-vv','--viewv',  action='store_true', help='vgrep enhance')
+    parser.add_argument('-ch','--colorh',  action='store_true', help='color h() list')
     parser.add_argument('-w','--wide',  action='store_true', help='grepsel wide view and select for vim')
     return parser
 
@@ -328,6 +357,7 @@ def main():
     pattern = args.pattern
 
     use_cc, use_mk, use_py, use_java, gview = DEFAULT_PRINT_OPTIONS
+    vv =False
     no_prompt = False
 
     grepview = False
@@ -335,31 +365,65 @@ def main():
     wideview = False
 
     if args.noprompt:
-       no_prompt = True
+        no_prompt = True
     if args.cc:
-       use_cc = args.cc
+        use_cc = args.cc
     if args.wide:
-       wideview = True
+        wideview = True
+
+    if args.viewv:
+        vv = True
+
+    if args.colorh:
+        color_h(pattern[0])
+        return
 
     if args.vgrep:
         color_v0print("vgrep",True)
         return
 
     if args.pattern:
-        if pattern[0].isdigit():
-            ln=int(pattern[0])
-            home = os.path.expanduser("~")
-            legrep = home+"/legrep"
-            fp=open(legrep)
-            lines = fp.readlines()
-            if ln <= len(lines):
-                parse_fnameline(lines[ln-1],ln-1)
+        if vv:
+            if pattern[0].isdigit():
+                ln=int(pattern[0])
+                if ln==0:
+                    color_v0print("",1)
+                    return
+                ln=int(pattern[0])
+                home = os.path.expanduser("~")
+                legrep = home+"/fte.grp"
+                fp=open(legrep)
+                lines = fp.readlines()
+                if ln < len(lines)+1:
+                    fname,fline = parse_vgrep(lines,ln-1)
+                    fname = fname.strip()
+                    fline = "+%s" % fline
+                    EDITOR = os.environ.get('EDITOR','vim') #that easy!
+                    call([EDITOR, fname, fline])
+                else:
+                    print "Out of Range!!!"
+                fp.close()
             else:
-                print "Out of Range!!!"
-            fp.close()
+                print "grep via ag \033[92m%s\033[0m" % pattern[0]
+                cmd = 'ag --fte "%s" > ~/fte.grp' % pattern[0]
+                os.system(cmd)
+#                os.system("vgrep -v")
+                color_v0print("",1)
         else:
-            write_prefix()
-            gnu_grep(pattern[0],use_cc,args.mk,args.py,args.java,wideview,no_prompt)
+            if pattern[0].isdigit():
+                ln=int(pattern[0])
+                home = os.path.expanduser("~")
+                legrep = home+"/legrep.grp"
+                fp=open(legrep)
+                lines = fp.readlines()
+                if ln <= len(lines)+1:
+                    parse_fnameline(lines[ln-1],ln-1)
+                else:
+                    print "Out of Range!!!"
+                fp.close()
+            else:
+                write_prefix()
+                gnu_grep(pattern[0],use_cc,args.mk,args.py,args.java,wideview,no_prompt)
     else:
         try:
             spat = os.environ["spat"]
