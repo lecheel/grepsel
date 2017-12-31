@@ -13,6 +13,7 @@ grepsel support two output store in ~/legrep.grp for recall
 grepsel.vim grepsel in vim script
 
 ###How to Use:###
+```
 	usage: grepsel [--help] [-cc] [-mk] [-py] [-ja] [-v] [-w]
 		[PATTERN [PATTERN ...]]
                
@@ -30,8 +31,9 @@ grepsel.vim grepsel in vim script
 	-ja, --java  search for java
 	-v, --vgrep  grepsel gnu view and select for vim
 	-w, --wide   grepsel wide view and select for vim
-
+```
 ###Add to .bashrc###
+```
     function vg()
     {
     if [[ $1 == "?" || $1 == "--help" ]]; then
@@ -63,7 +65,11 @@ grepsel.vim grepsel in vim script
     ag --fte $@ > ~/fte.grp
     grepsel -vv $@
     }
+```    
 ###Sample
+![Screenshot](./grepsel.gif)
+
+```
 	$ grepsel -py grepsel
 	grepsel in progress....via gnu grep !!
 	find . -name '*.py'
@@ -81,8 +87,7 @@ grepsel.vim grepsel in vim script
 
         $ grepsel 5
         launch vim for select line which cross the section
-
+```
 ###Problem
         now grepsel [num] as quick launch how to grep real number [TODO]
 
-![Screenshot](./grepsel.gif)
