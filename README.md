@@ -63,7 +63,6 @@ grepsel.vim grepsel in vim script
     ag --fte $@ > ~/fte.grp
     grepsel -vv $@
     }
-
 ###Sample
 	$ grepsel -py grepsel
 	grepsel in progress....via gnu grep !!
@@ -85,3 +84,5 @@ grepsel.vim grepsel in vim script
 
 ###Problem
         now grepsel [num] as quick launch how to grep real number [TODO]
+
+![Screenshot](./grepsel.gif)
